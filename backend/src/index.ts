@@ -1,10 +1,12 @@
-import express from "express";
+import express, { Request, Response } from "express";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth";
 
 const app = express();
+app.use(express.json());
+app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.send("Hello there World!");
-});
+app.use("/api/v1", authRoutes);
 
 app.listen(3000, () => {
   console.log("Server is listening on port 3000!");
