@@ -3,7 +3,7 @@ import "dotenv/config";
 import { verifyToken } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
-  user: { username: string };
+  user: { userId: string };
 }
 
 export const authMiddleware = (
@@ -17,7 +17,7 @@ export const authMiddleware = (
 
   try {
     const decoded = verifyToken(token);
-    req.user = { username: decoded.username };
+    req.user = { userId: decoded.userId };
     next();
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });

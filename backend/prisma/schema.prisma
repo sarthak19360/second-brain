@@ -48,5 +48,9 @@ enum ContentType {
   article
   video
   image
-  audio 
+  audio
+  document
+  tweet
+  youtube
+  link
 }
