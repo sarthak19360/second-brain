@@ -126,7 +126,74 @@ router.post("/content", async (req: Request, res: Response) => {
   }
 });
 
-// get /content/userId -> gets all content by userId
+router.get("/content", async (req: Request, res: Response) => {
+  try {
+    if (!req.cookies.token) {
+      res.status(401).json({ message: "No token, not authorized" });
+      return;
+    }
+    const user = verifyToken(req.cookies.token);
+    const userId = user.userId;
+    const allContent = await prisma.content.findMany({
+      where: {
+        userId,
+      },
+    });
+    res.status(200).json({
+      allContent,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.delete("/content/:id", async (req: Request, res: Response) => {
+  try {
+    if (!req.cookies.token) {
+      res.status(401).json({ message: "No token, not authorized" });
+      return;
+    }
+    const user = verifyToken(req.cookies.token);
+    const userId = user.userId;
+
+    const contentId = req.params.id;
+
+    const deletedContent = await prisma.content.findUnique({
+      where: {
+        id: contentId,
+      },
+    });
+
+    if (deletedContent?.userId !== userId) {
+      res.status(403).json({
+        message: "Cannot delete other user's posts!!",
+      });
+      return;
+    }
+
+    await prisma.content.delete({
+      where: {
+        id: contentId,
+      },
+    });
+
+    res.status(200).json({
+      deleted: deletedContent,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.post("/api/v1/brain/share", async (req: Request, res: Response) => {
+  // Create a shareable link for your second brain
+});
 
 router.post("/logout", (req: Request, res: Response) => {
   res.clearCookie("token");
