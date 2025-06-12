@@ -3,7 +3,12 @@ import bcrypt from "bcryptjs";
 import { generateToken, verifyToken } from "../utils/jwt";
 import { authMiddleware, AuthRequest } from "../middleware/authMiddleware";
 import prisma from "../lib/prisma";
-import { signupSchema, loginSchema, contentSchema } from "../zodTypes/type";
+import {
+  signupSchema,
+  loginSchema,
+  contentSchema,
+  shareLinkSchema,
+} from "../zodTypes/type";
 
 const router = express.Router();
 
@@ -191,8 +196,84 @@ router.delete("/content/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/api/v1/brain/share", async (req: Request, res: Response) => {
-  // Create a shareable link for your second brain
+router.post("/brain/share", async (req: Request, res: Response) => {
+  try {
+    if (!req.cookies.token) {
+      res.status(401).json({ message: "No token, not authorized" });
+      return;
+    }
+    const user = verifyToken(req.cookies.token);
+
+    const share: boolean = req.body.share;
+    if (share) {
+      const existingLink = await prisma.link.findFirst({
+        where: {
+          userId: user.userId,
+        },
+      });
+
+      if (existingLink) {
+        res.status(200).json({
+          hash: existingLink.hash,
+        });
+        return;
+      }
+
+      const hash = (Math.random() + 1).toString(36).substring(4);
+      await prisma.link.create({
+        data: {
+          userId: user.userId,
+          hash,
+        },
+      });
+      res.status(200).json({
+        hash,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/brain/:shareLink", async (req: Request, res: Response) => {
+  try {
+    const shareLink = req.params.shareLink;
+    const link = await prisma.link.findFirst({
+      where: {
+        hash: shareLink,
+      },
+    });
+
+    if (!link) {
+      res.status(404).json({
+        message: "Share Link is invalid",
+      });
+      return;
+    }
+
+    const contents = await prisma.content.findMany({
+      where: {
+        userId: link?.userId,
+      },
+    });
+    const username = await prisma.user.findUnique({
+      where: {
+        id: link?.userId,
+      },
+    });
+    res.status(200).json({
+      username,
+      contents,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 });
 
 router.post("/logout", (req: Request, res: Response) => {

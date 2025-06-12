@@ -44,3 +44,7 @@ export const contentSchema = z.object({
   title: z.string(),
   tags: z.array(z.string()),
 });
+
+export const shareLinkSchema = z.object({
+  username: z.string(),
+});
