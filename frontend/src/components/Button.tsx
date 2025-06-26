@@ -18,7 +18,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       onClick={onClick}
       className={clsx(
-        "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition",
+        "inline-flex w-full justify-center items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition",
         {
           "bg-indigo-600 text-white hover:bg-indigo-700": variant === "primary",
           "bg-indigo-50 text-indigo-600 hover:bg-indigo-100":

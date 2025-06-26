@@ -6,7 +6,7 @@ import { LinkIcon } from "../icons/LinkIcon";
 
 const Sidebar: React.FC = () => {
   return (
-    <div className="w-[200px] min-h-screen bg-white border-r border-gray-200 p-4 rounded-tr-xl">
+    <div className="w-full md:w-[200px] bg-white border-r border-gray-200 p-4">
       {/* Logo & Title */}
       <div className="flex items-center gap-2 mb-6">
         <NoteIcon />
@@ -23,7 +23,6 @@ const Sidebar: React.FC = () => {
           <YoutubeIcon />
           <span>Videos</span>
         </div>
-
         <div className="flex items-center gap-3 cursor-pointer hover:text-indigo-500">
           <LinkIcon />
           <span>Links</span>
